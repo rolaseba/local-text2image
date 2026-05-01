@@ -9,7 +9,10 @@ _No items yet._
 
 ## Improvements
 
-- [ ] Update README in "Download a Model" section, explain where are the models downloaded and where are the names taken.
+- [ ] Update README 
+  - [ ] in "Download a Model" section, explain where are the models downloaded and where are the names taken.
+  - [ ] add how configure .env (may be iside docs/user-guide.md)
+  - [ ] add docs/index.md reference
 
 
 ## Ideas
