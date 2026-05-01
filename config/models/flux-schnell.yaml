@@ -1,0 +1,21 @@
+# FLUX.1-schnell Model Constraints
+# Reference: https://huggingface.co/black-forest-labs/FLUX.1-schnell
+
+min_vram_gb: 4
+recommended_vram_gb: 8
+model_size_gb: 4
+
+# Allowed ranges for validation
+constraints:
+  width:
+    min: 256
+    max: 2048
+  height:
+    min: 256
+    max: 2048
+  num_inference_steps:
+    min: 1
+    max: 50
+  guidance_scale:
+    min: 1.0
+    max: 10.0

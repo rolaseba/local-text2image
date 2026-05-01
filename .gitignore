@@ -1,0 +1,63 @@
+# Local runtime config
+.env
+.env.*
+!.env.example
+/config/config.yaml
+
+# Downloaded model files
+/models/
+
+# Generated images
+/output/
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Build/package artifacts
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Agent/local tooling
+_bmad/
+_bmad-output/
+.opencode/
+.codex
+.codex/

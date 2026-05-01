@@ -1,0 +1,36 @@
+# text2image example configuration
+
+# Model selection (required)
+# Run `text2image list-models` to see available model names.
+model: flux-schnell
+
+# Generation prompt (required)
+prompt: "A cinematic landscape with mountains, clouds, and warm morning light"
+
+# Optional: negative prompt to avoid certain elements
+negative_prompt: "blurry, low quality, distorted"
+
+# Output settings
+output_dir: output
+filename_format: "{timestamp}_{prompt_hash}.png"
+
+# Generation parameters
+# Width and height must be 256-2048 and divisible by 8.
+width: 1024
+height: 1024
+
+# Number of denoising steps (1-100)
+num_inference_steps: 30
+
+# Guidance scale for prompt adherence (1.0-10.0)
+guidance_scale: 8
+
+# Seed for reproducibility (null = random)
+seed: null
+
+# Advanced options
+# Device options: auto, cuda, mps, xpu, cpu.
+# auto prefers NVIDIA/ROCm CUDA, then Apple MPS, Intel XPU, and finally CPU.
+device: auto
+batch_size: 1
+enable_progress: true
