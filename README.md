@@ -28,6 +28,13 @@ image generation easier to inspect, run, modify, and improve.
 - **Pre-flight Validation** - Validates model, config, and resources before generation
 - **Timestamp Filenames** - Automatic filename generation to prevent overwrites
 
+## Example Output
+
+Generated images are saved in `output/` with timestamped filenames, such as
+`output/20260501_144113_2923.png`.
+
+![Example generated image](docs/assets/pic-example.png)
+
 ## Installation
 
 ```bash
