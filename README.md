@@ -98,8 +98,45 @@ for repositories your Hugging Face account can read. Hugging Face documents user
 access tokens and token roles in its [User access tokens guide](https://huggingface.co/docs/hub/en/security-tokens).
 
 ### 3. Download a Model
+
+Models are downloaded from Hugging Face into the local `models/` directory. For example, `text2image download flux-schnell` saves files to `models/flux-schnell/`.
+
+The `text2image download <model>` command accepts two types of names:
+
+- **Built-in shortcuts**: `flux-schnell`, `flux-dev` (pre-configured, recommended for most users)
+- **Full Hugging Face repository IDs**: e.g., `black-forest-labs/FLUX.1-schnell`
+
+**Where the shortcut names come from:**
+
+The built-in shortcuts map to these Hugging Face repositories:
+
+| `text2image` shortcut | Hugging Face repository |
+|----------------------|-------------------------|
+| `flux-schnell` | `black-forest-labs/FLUX.1-schnell` |
+| `flux-dev` | `black-forest-labs/FLUX.1-dev` |
+
+**How to find and compare models on Hugging Face:**
+
+When searching for models on <https://huggingface.co/models>, look for:
+
+1. **Repository ID format** - Shown as `owner/model-name` (e.g., `black-forest-labs/FLUX.1-schnell`). Use this full ID directly with `text2image download <owner>/<model-name>`.
+
+2. **Diffusers support** - This app uses Diffusers pipelines, so look for models that provide a Diffusers format.
+
+3. **License and access** - Check if you need to accept model terms on the page before downloading.
+
+4. **Hardware requirements** - Larger models (like FLUX.1-dev) need more VRAM (~8GB) compared to smaller variants.
+
+5. **Model cards** - The model page contains hardware recommendations and usage details.
+
+If you use a full Hugging Face repository ID, files are saved under `models/<model_name>/` using the exact value you passed.
+
 ```bash
+# Using built-in shortcut (recommended)
 text2image download flux-schnell
+
+# Using full Hugging Face repository ID
+text2image download black-forest-labs/FLUX.1-schnell
 ```
 
 ### 4. Configure Your Prompt
@@ -166,21 +203,21 @@ If `--batch` is not provided, the app uses `batch_size` from `config/config.yaml
 
 ### `text2image download <model>`
 
-Download a model before generating images. Built-in shortcuts are available for `flux-schnell` and `flux-dev`.
-If the repository requires authentication, configure `HF_TOKEN` in `.env` first.
+Download a model before generating images. For details on model sources, naming, and how to find models on Hugging Face, see [### 3. Download a Model](#3-download-a-model).
 
-```bash
-text2image download flux-schnell
-```
+If the repository requires authentication, configure `HF_TOKEN` in `.env` first (see [### 2. Configure Hugging Face Access](#2-configure-hugging-face-access)).
 
 Examples:
 
 ```bash
-# Download FLUX.1-schnell
+# Download FLUX.1-schnell (using shortcut)
 text2image download flux-schnell
 
-# Download FLUX.1-dev
+# Download FLUX.1-dev (using shortcut)
 text2image download flux-dev
+
+# Download using full Hugging Face repository ID
+text2image download black-forest-labs/FLUX.1-schnell
 ```
 
 ### `text2image list-models`

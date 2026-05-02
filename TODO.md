@@ -10,7 +10,7 @@ _No items yet._
 ## Improvements
 
 - [ ] Update README 
-  - [ ] in "Download a Model" section, explain where are the models downloaded and where are the names taken.
+  - [x] in "Download a Model" section, explain where are the models downloaded and where are the names taken.
   - [x] add how configure .env (may be iside docs/user-guide.md). Why is needed HF_TOKEN in .env file and how get it in the fist time
   - [ ] add docs/index.md reference
 
