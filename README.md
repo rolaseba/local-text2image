@@ -76,12 +76,33 @@ Model Integrity Report
  - flux-dev NOT DOWNLOADED (Weights: ❌ Config: ✅)
 ```
 
-### 2. Download a Model
+### 2. Configure Hugging Face Access
+
+FLUX model repositories on Hugging Face can require authentication and accepted
+model terms before the first download. Put your token in a local `.env` file so
+`text2image download` can authenticate without storing secrets in Git:
+
+```bash
+printf 'HF_TOKEN=hf_your_token_here\n' > .env
+```
+
+To get the token the first time:
+
+1. Create or log in to your Hugging Face account.
+2. Open the FLUX model page, such as <https://huggingface.co/black-forest-labs/FLUX.1-schnell>, and accept the model terms.
+3. Go to <https://huggingface.co/settings/tokens>.
+4. Create a token with `read` access, then copy it into `.env` as `HF_TOKEN=...`.
+
+The `.env` file is ignored by Git. Keep the token private; it allows downloads
+for repositories your Hugging Face account can read. Hugging Face documents user
+access tokens and token roles in its [User access tokens guide](https://huggingface.co/docs/hub/en/security-tokens).
+
+### 3. Download a Model
 ```bash
 text2image download flux-schnell
 ```
 
-### 3. Configure Your Prompt
+### 4. Configure Your Prompt
 Copy the example config, then edit `config/config.yaml`:
 ```bash
 cp config/config.example.yaml config/config.yaml
@@ -98,7 +119,7 @@ num_inference_steps: 28
 guidance_scale: 3.5
 ```
 
-### 4. Generate an Image
+### 5. Generate an Image
 ```bash
 text2image generate
 ```
@@ -146,6 +167,7 @@ If `--batch` is not provided, the app uses `batch_size` from `config/config.yaml
 ### `text2image download <model>`
 
 Download a model before generating images. Built-in shortcuts are available for `flux-schnell` and `flux-dev`.
+If the repository requires authentication, configure `HF_TOKEN` in `.env` first.
 
 ```bash
 text2image download flux-schnell

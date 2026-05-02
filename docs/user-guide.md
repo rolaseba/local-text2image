@@ -6,12 +6,41 @@
 
 ## Quick Start
 
-### 1. Download a Model
+### 1. Configure Hugging Face Access
+
+Create a local `.env` file with your Hugging Face access token:
+
+```bash
+printf 'HF_TOKEN=hf_your_token_here\n' > .env
+```
+
+`HF_TOKEN` is needed when Hugging Face requires authentication for model
+downloads. FLUX models can be gated, so your account must be allowed to read the
+model repository before `text2image download` can fetch the files.
+
+First-time setup:
+
+1. Create or log in to a Hugging Face account.
+2. Visit the model page, for example <https://huggingface.co/black-forest-labs/FLUX.1-schnell>, and accept the terms.
+3. Open <https://huggingface.co/settings/tokens>.
+4. Create a token with `read` access.
+5. Copy the token into `.env`:
+
+```text
+HF_TOKEN=hf_your_token_here
+```
+
+The `.env` file is ignored by Git, so it can hold local secrets. Keep the token
+private and rotate it from Hugging Face settings if it is ever exposed. See the
+official Hugging Face [User access tokens guide](https://huggingface.co/docs/hub/en/security-tokens)
+for token roles and management.
+
+### 2. Download a Model
 ```bash
 text2image download flux-schnell
 ```
 
-### 2. Configure Your Prompt
+### 3. Configure Your Prompt
 Copy the example config, then edit `config/config.yaml`:
 
 ```bash
@@ -24,7 +53,7 @@ model: flux-schnell
 prompt: "A beautiful sunset over mountains"
 ```
 
-### 3. Generate an Image
+### 4. Generate an Image
 ```bash
 text2image generate
 ```

@@ -19,6 +19,7 @@ from src.config import load_config
 from src.output import save_image
 from src.validation import validate_all_components, get_validation_summary, validate_gpu
 from src.utils.device import select_device
+from src.utils.env import load_dotenv
 from src.errors import (
     ModelDownloadError,
     ConfigError,
@@ -216,6 +217,7 @@ def generate(batch):
 def download(model_name):
     """Download a model by name."""
     try:
+        load_dotenv()
         model_path = downloader.download_model(model_name)
         print_success(f"Model '{model_name}' downloaded to: {model_path}")
     except ModelDownloadError as e:
