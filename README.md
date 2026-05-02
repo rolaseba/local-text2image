@@ -35,6 +35,15 @@ Generated images are saved in `output/` with timestamped filenames, such as
 
 ![Example generated image](docs/assets/pic-example.png)
 
+## More Documentation
+
+This README covers the essentials. For more in-depth guides, see the full documentation:
+
+- [docs/index.md](docs/index.md) - Documentation index with all available guides
+- [docs/user-guide.md](docs/user-guide.md) - Complete user guide
+- [docs/architecture.md](docs/architecture.md) - Technical architecture
+- [docs/development-guide.md](docs/development-guide.md) - Development setup and testing
+
 ## Installation
 
 ```bash
