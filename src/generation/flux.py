@@ -10,6 +10,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 import logging
 import sys
 import io
+import threading
 
 logging.getLogger("diffusers").setLevel(logging.ERROR)
 logging.getLogger("transformers").setLevel(logging.ERROR)
@@ -27,15 +28,17 @@ from src.utils.device import select_device
 
 
 class SuppressProgress:
-    """Context manager to suppress progress bar output."""
+    """Context manager to suppress progress bar output (thread-safe)."""
+
+    _local = threading.local()
 
     def __enter__(self):
-        self._old_stderr = sys.stderr
+        SuppressProgress._local.old_stderr = sys.stderr
         sys.stderr = io.StringIO()
         return self
 
     def __exit__(self, *args):
-        sys.stderr = self._old_stderr
+        sys.stderr = SuppressProgress._local.old_stderr
 
 
 class BaseModelLoader(ABC):
@@ -62,7 +65,7 @@ class BaseModelLoader(ABC):
         self._model = None
 
     def is_loaded(self) -> bool:
-        return self._pipeline is not None
+        return self._model is not None
 
 
 class FluxModelLoader(BaseModelLoader):
@@ -86,6 +89,9 @@ class FluxModelLoader(BaseModelLoader):
         self._pipeline = None
         self._device = None
         self._device_selection = None
+
+    def is_loaded(self) -> bool:
+        return self._pipeline is not None
 
     def load(self, device: str = "auto") -> None:
         """Load the FLUX model into memory.

@@ -360,9 +360,23 @@ def _validate_vram_requirements(config: dict) -> None:
         import torch
 
         if config.get("device") in {"auto", "cuda"} and torch.cuda.is_available():
-            available_vram = torch.cuda.get_device_properties(0).total_memory / (
-                1024**3
-            )
+            device_count = torch.cuda.device_count()
+            if device_count == 0:
+                return
+
+            available_vram = None
+            for device_idx in range(device_count):
+                try:
+                    props = torch.cuda.get_device_properties(device_idx)
+                    vram = props.total_memory / (1024**3)
+                    if available_vram is None or vram > available_vram:
+                        available_vram = vram
+                except (IndexError, RuntimeError):
+                    continue
+
+            if available_vram is None:
+                return
+
             if available_vram < min_vram:
                 raise ConfigError(
                     f"Your GPU has {available_vram:.1f}GB VRAM but {model} requires {min_vram}GB",

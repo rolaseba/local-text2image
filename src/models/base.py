@@ -20,8 +20,12 @@ class ModelLoader(ABC):
         self._model = None
 
     @abstractmethod
-    def load(self) -> None:
-        """Load the model into memory."""
+    def load(self, device: str = "auto") -> None:
+        """Load the model into memory.
+
+        Args:
+            device: Compute device to load model onto ("auto", "cuda", "cpu", etc.)
+        """
         pass
 
     @abstractmethod

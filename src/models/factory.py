@@ -1,13 +1,102 @@
 """Model factory for creating model loaders."""
 
 from pathlib import Path
-from typing import Dict, Type, Optional
+from typing import Dict, Type
 
 from src.errors import ModelNotFoundError, ModelValidationError
 
 
-MODEL_REGISTRY: Dict[str, Type] = {}
-_registered = False
+class ModelFactory:
+    """Factory for creating model loaders with encapsulated registry."""
+
+    _registry: Dict[str, Type] = {}
+    _initialized = False
+
+    @classmethod
+    def register(cls, model_type: str, loader_class: Type) -> None:
+        """Register a model loader class.
+
+        Args:
+            model_type: Model type identifier (e.g., 'flux', 'sdxl')
+            loader_class: Model loader class
+        """
+        cls._registry[model_type] = loader_class
+
+    @classmethod
+    def _ensure_initialized(cls) -> None:
+        """Ensure model loaders are registered (called once)."""
+        if cls._initialized:
+            return
+
+        from src.generation.flux import FluxModelLoader
+
+        cls.register("flux", FluxModelLoader)
+        cls._initialized = True
+
+    @classmethod
+    def create(
+        cls,
+        model_name: str,
+        model_path: Path,
+        validate: bool = True,
+        progress_callback=None,
+    ):
+        """Create a model loader for the specified model.
+
+        Args:
+            model_name: Name of the model
+            model_path: Path to the model files
+            validate: Whether to validate model files before loading
+            progress_callback: Optional callback for progress updates
+
+        Returns:
+            ModelLoader instance
+
+        Raises:
+            ModelNotFoundError: If model type is not supported
+            ModelValidationError: If model validation fails
+        """
+        cls._ensure_initialized()
+
+        from src.models.validator import validate_model_or_raise
+
+        if validate:
+            validate_model_or_raise(model_name)
+
+        model_type = cls._get_model_type(model_name)
+
+        if model_type not in cls._registry:
+            available = ", ".join(cls._registry.keys()) or "none"
+            raise ModelNotFoundError(
+                f"Model type '{model_type}' not supported. Available models: {available}"
+            )
+
+        return cls._registry[model_type](model_name, model_path, progress_callback)
+
+    @classmethod
+    def _get_model_type(cls, model_name: str) -> str:
+        """Extract model type from model name.
+
+        Args:
+            model_name: Full model name
+
+        Returns:
+            Model type identifier
+        """
+        name_lower = model_name.lower()
+        if "flux" in name_lower:
+            return "flux"
+        elif "sdxl" in name_lower:
+            return "sdxl"
+        elif "sd" in name_lower and "sdxl" not in name_lower:
+            return "sd"
+        return model_name
+
+    @classmethod
+    def list_supported(cls) -> list:
+        """Get list of supported model types."""
+        cls._ensure_initialized()
+        return list(cls._registry.keys())
 
 
 def register_model(model_type: str, loader_class: Type) -> None:
@@ -17,26 +106,19 @@ def register_model(model_type: str, loader_class: Type) -> None:
         model_type: Model type identifier (e.g., 'flux', 'sdxl')
         loader_class: Model loader class
     """
-    MODEL_REGISTRY[model_type] = loader_class
+    ModelFactory.register(model_type, loader_class)
 
 
-def _ensure_registered():
+def _ensure_registered() -> None:
     """Ensure model loaders are registered."""
-    global _registered
-    if _registered:
-        return
-
-    from src.generation.flux import FluxModelLoader
-
-    register_model("flux", FluxModelLoader)
-    _registered = True
+    ModelFactory._ensure_initialized()
 
 
 def create_model_loader(
     model_name: str,
     model_path: Path,
     validate: bool = True,
-    progress_callback: callable = None,
+    progress_callback=None,
 ):
     """Create a model loader for the specified model.
 
@@ -53,22 +135,7 @@ def create_model_loader(
         ModelNotFoundError: If model type is not supported
         ModelValidationError: If model validation fails
     """
-    _ensure_registered()
-
-    from src.models.validator import validate_model_or_raise
-
-    if validate:
-        validate_model_or_raise(model_name)
-
-    model_type = _get_model_type(model_name)
-
-    if model_type not in MODEL_REGISTRY:
-        available = ", ".join(MODEL_REGISTRY.keys()) or "none"
-        raise ModelNotFoundError(
-            f"Model type '{model_type}' not supported. Available models: {available}"
-        )
-
-    return MODEL_REGISTRY[model_type](model_name, model_path, progress_callback)
+    return ModelFactory.create(model_name, model_path, validate, progress_callback)
 
 
 def _get_model_type(model_name: str) -> str:
@@ -80,17 +147,9 @@ def _get_model_type(model_name: str) -> str:
     Returns:
         Model type identifier
     """
-    name_lower = model_name.lower()
-    if "flux" in name_lower:
-        return "flux"
-    elif "sdxl" in name_lower:
-        return "sdxl"
-    elif "sd" in name_lower and "sdxl" not in name_lower:
-        return "sd"
-    return model_name
+    return ModelFactory._get_model_type(model_name)
 
 
 def list_supported_models() -> list:
     """Get list of supported model types."""
-    _ensure_registered()
-    return list(MODEL_REGISTRY.keys())
+    return ModelFactory.list_supported()
