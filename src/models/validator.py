@@ -21,8 +21,11 @@ FLUX_OPTIONAL_FILES = [
     "diffusion_pytorch_model.safetensors",
 ]
 
+MIN_VALID_FILE_SIZE = 1
+MIN_VALID_JSON_SIZE = 1000
 
-@dataclass
+
+@dataclass(frozen=True)
 class ValidationResult:
     """Result of model validation."""
 
@@ -34,11 +37,11 @@ class ValidationResult:
 
     def __post_init__(self):
         if self.missing_files is None:
-            self.missing_files = []
+            object.__setattr__(self, "missing_files", [])
         if self.corrupted_files is None:
-            self.corrupted_files = []
+            object.__setattr__(self, "corrupted_files", [])
         if self.extra_files is None:
-            self.extra_files = []
+            object.__setattr__(self, "extra_files", [])
 
 
 def get_model_config(model_name: str) -> dict:
@@ -115,7 +118,10 @@ def validate_model(model_name: str) -> ValidationResult:
     if not model_path.exists():
         raise ModelNotFoundError(model_name)
 
-    if not any(model_path.iterdir()):
+    try:
+        if not any(model_path.iterdir()):
+            raise ModelNotFoundError(model_name)
+    except OSError:
         raise ModelNotFoundError(model_name)
 
     config = get_model_config(model_name)
@@ -132,13 +138,13 @@ def validate_model(model_name: str) -> ValidationResult:
         file_path = _find_file_in_model(model_path, req_file)
         if file_path is None:
             missing.append(req_file)
-        elif file_path.stat().st_size == 0:
+        elif file_path.stat().st_size < MIN_VALID_FILE_SIZE:
             missing.append(f"{req_file} (empty)")
 
     corrupted = []
     for req_file in required_files:
         file_path = _find_file_in_model(model_path, req_file)
-        if file_path and file_path.stat().st_size < 1000:
+        if file_path and file_path.stat().st_size < MIN_VALID_JSON_SIZE:
             if req_file.endswith(".json"):
                 try:
                     import json

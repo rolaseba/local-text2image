@@ -36,6 +36,34 @@ def normalize_device_option(device: str | None) -> str:
     return selected
 
 
+def _select_best_cuda_device() -> str:
+    """Select the CUDA device with the most available VRAM.
+
+    Returns:
+        Device name string (e.g., "cuda:0")
+    """
+    import torch
+
+    device_count = torch.cuda.device_count()
+    if device_count == 0:
+        return "cuda"
+
+    best_idx = 0
+    best_memory = 0
+    for idx in range(device_count):
+        try:
+            props = torch.cuda.get_device_properties(idx)
+            if props.total_memory > best_memory:
+                best_memory = props.total_memory
+                best_idx = idx
+        except (IndexError, RuntimeError):
+            continue
+
+    if best_idx == 0:
+        return "cuda"
+    return f"cuda:{best_idx}"
+
+
 def select_device(device: str | None = "auto") -> DeviceSelection:
     """Select the best available generation device."""
     requested = normalize_device_option(device)
@@ -46,7 +74,7 @@ def select_device(device: str | None = "auto") -> DeviceSelection:
         raise RuntimeError("PyTorch is not installed") from exc
 
     available = {
-        "cuda": torch.cuda.is_available(),
+        "cuda": _cuda_is_available(torch),
         "mps": bool(
             hasattr(torch.backends, "mps") and torch.backends.mps.is_available()
         ),
@@ -57,12 +85,23 @@ def select_device(device: str | None = "auto") -> DeviceSelection:
     if requested == "auto":
         for candidate in ("cuda", "mps", "xpu", "cpu"):
             if available[candidate]:
-                return _build_selection(candidate, requested)
+                selected = candidate
+                if candidate == "cuda" and torch.cuda.device_count() > 1:
+                    selected = _select_best_cuda_device()
+                return _build_selection(selected, requested)
 
     if available.get(requested):
         return _build_selection(requested, requested)
 
     raise RuntimeError(f"Requested device '{requested}' is not available")
+
+
+def _cuda_is_available(torch) -> bool:
+    """Check if CUDA is available, guarding against runtime failures."""
+    try:
+        return torch.cuda.is_available()
+    except RuntimeError:
+        return False
 
 
 def _build_selection(name: str, requested: str) -> DeviceSelection:

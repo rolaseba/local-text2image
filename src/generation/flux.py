@@ -87,6 +87,15 @@ class FluxModelLoader(BaseModelLoader):
     def is_loaded(self) -> bool:
         return self._pipeline is not None
 
+    def __repr__(self) -> str:
+        return (
+            f"FluxModelLoader("
+            f"model_name={self.model_name!r}, "
+            f"model_path={str(self.model_path)!r}, "
+            f"loaded={self.is_loaded()}, "
+            f"device={self._device})"
+        )
+
     def load(self, device: str = "auto") -> None:
         """Load the FLUX model into memory.
 
@@ -219,14 +228,16 @@ class FluxModelLoader(BaseModelLoader):
     def get_memory_requirement(self) -> int:
         """Get estimated VRAM requirement in GB.
 
+        Queries the model config file for min_vram_gb. Falls back to a
+        default if no config exists.
+
         Returns:
             Required VRAM in gigabytes
         """
-        model_configs = {
-            "flux-schnell": 4,
-            "flux-dev": 8,
-        }
-        return model_configs.get(self.model_name, 4)
+        from src.config.loader import load_model_config
+
+        model_config = load_model_config(self.model_name)
+        return model_config.get("min_vram_gb", 4)
 
     def unload(self) -> None:
         """Unload model from memory."""
@@ -270,6 +281,6 @@ class FluxModelLoader(BaseModelLoader):
             message: Progress message
             progress: Progress value (0.0 to 1.0)
         """
-        if self.progress_callback:
-            # For loading phase, use the 0.0-1.0 float as the progress value
-            self.progress_callback(message, progress)
+        if self.progress_callback is None:
+            return
+        self.progress_callback(message, progress)

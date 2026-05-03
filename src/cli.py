@@ -1,5 +1,6 @@
 """CLI entry point for text-2-image."""
 
+import random
 import click
 from pathlib import Path
 from typing import Optional, Dict, Any, Callable, Tuple
@@ -157,8 +158,6 @@ def generate(batch):
             # unless a specific seed is provided in config
             seed = config.get("seed")
             if seed is None:
-                import random
-
                 seed = random.randint(0, 2**32 - 1)
 
             image = loader.generate(

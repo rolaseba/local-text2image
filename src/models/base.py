@@ -57,3 +57,11 @@ class ModelLoader(ABC):
     def is_loaded(self) -> bool:
         """Check if model is loaded."""
         return self._model is not None
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}("
+            f"model_name={self.model_name!r}, "
+            f"model_path={str(self.model_path)!r}, "
+            f"loaded={self.is_loaded()})"
+        )

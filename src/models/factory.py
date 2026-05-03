@@ -80,6 +80,9 @@ class ModelFactory:
     def _get_model_type(cls, model_name: str) -> str:
         """Extract model type from model name.
 
+        Uses prefix matching to avoid false positives (e.g., "my-flux-model"
+        incorrectly matching as "flux").
+
         Args:
             model_name: Full model name
 
@@ -87,11 +90,11 @@ class ModelFactory:
             Model type identifier
         """
         name_lower = model_name.lower()
-        if "flux" in name_lower:
+        if name_lower.startswith("flux"):
             return "flux"
-        elif "sdxl" in name_lower:
+        if name_lower.startswith("sdxl"):
             return "sdxl"
-        elif "sd" in name_lower and "sdxl" not in name_lower:
+        if name_lower.startswith("sd") and not name_lower.startswith("sdxl"):
             return "sd"
         return model_name
 
