@@ -6,6 +6,7 @@ import yaml
 
 from src.errors import ConfigError
 from src.utils.device import SUPPORTED_DEVICE_OPTIONS, normalize_device_option
+from src.models.factory import list_supported_models
 
 
 DEFAULT_CONFIG = {
@@ -75,8 +76,6 @@ def load_config(config_path: Optional[Path] = None) -> dict:
 
     config = DEFAULT_CONFIG.copy()
     config.update(user_config)
-
-    _validate_required_fields(config)
 
     model_name = config.get("model")
     if model_name:
@@ -207,7 +206,7 @@ def _validate_config(config: dict, config_path: Path) -> None:
         )
 
     model = config.get("model")
-    supported_models = ["flux-schnell", "flux-dev"]
+    supported_models = list_supported_models()
     if model not in supported_models:
         raise ConfigError(
             f"Model '{model}' is not supported. Available: {', '.join(supported_models)}",
@@ -261,29 +260,6 @@ def _validate_config(config: dict, config_path: Path) -> None:
     _validate_output_settings(config)
     _validate_seed(config)
     _validate_vram_requirements(config)
-
-
-def _validate_required_fields(config: dict) -> None:
-    """Validate required fields before loading model-specific settings."""
-    if not config.get("model"):
-        raise ConfigError(
-            "Config is missing required field 'model'",
-            guidance="Add `model: flux-schnell` to your config.yaml",
-        )
-
-    if not config.get("prompt"):
-        raise ConfigError(
-            "Config is missing required field 'prompt'",
-            guidance="Add your prompt to config.yaml, e.g., prompt: 'A beautiful sunset'",
-        )
-
-    model = config.get("model")
-    supported_models = ["flux-schnell", "flux-dev"]
-    if model not in supported_models:
-        raise ConfigError(
-            f"Model '{model}' is not supported. Available: {', '.join(supported_models)}",
-            guidance=f"Use one of: {', '.join(supported_models)}",
-        )
 
 
 def _validate_output_settings(config: dict) -> None:

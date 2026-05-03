@@ -1,5 +1,6 @@
 """Image output management for text2image."""
 
+import hashlib
 import os
 from pathlib import Path
 from datetime import datetime
@@ -42,9 +43,9 @@ def generate_filename(
         timestamp = datetime.now()
 
     ts_str = timestamp.strftime("%Y%m%d_%H%M%S")
-    prompt_hash = hash(prompt) % 10000
+    prompt_hash = hashlib.sha256(prompt.encode()).hexdigest()[:8]
 
-    return f"{ts_str}_{prompt_hash:04d}.{output_format}"
+    return f"{ts_str}_{prompt_hash}.{output_format}"
 
 
 def save_image(
@@ -84,8 +85,10 @@ def save_image(
 
         return filepath
 
-    except Exception as e:
-        raise ImageSaveError(str(e))
+    except OSError as e:
+        raise ImageSaveError(f"OS error: {e}")
+    except (ValueError, KeyError) as e:
+        raise ImageSaveError(f"Invalid image or format: {e}")
 
 
 def get_output_path(output_dir: str, filename: str) -> Path:

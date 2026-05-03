@@ -6,6 +6,9 @@ from typing import Dict, Type
 from src.errors import ModelNotFoundError, ModelValidationError
 
 
+SUPPORTED_MODEL_NAMES = ["flux-schnell", "flux-dev"]
+
+
 class ModelFactory:
     """Factory for creating model loaders with encapsulated registry."""
 
@@ -94,9 +97,14 @@ class ModelFactory:
 
     @classmethod
     def list_supported(cls) -> list:
-        """Get list of supported model types."""
+        """Get list of supported model names."""
         cls._ensure_initialized()
-        return list(cls._registry.keys())
+        return SUPPORTED_MODEL_NAMES
+
+    @classmethod
+    def is_supported(cls, model_name: str) -> bool:
+        """Check if a model name is supported."""
+        return model_name in SUPPORTED_MODEL_NAMES
 
 
 def register_model(model_type: str, loader_class: Type) -> None:
@@ -151,5 +159,10 @@ def _get_model_type(model_name: str) -> str:
 
 
 def list_supported_models() -> list:
-    """Get list of supported model types."""
+    """Get list of supported model names."""
     return ModelFactory.list_supported()
+
+
+def is_model_supported(model_name: str) -> bool:
+    """Check if a model name is supported."""
+    return ModelFactory.is_supported(model_name)

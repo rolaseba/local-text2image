@@ -1,13 +1,7 @@
 """FLUX model loader implementation."""
 
-import os
-
-os.environ["DIFFUSERS_DISABLE_PROGRESS_BARS"] = "1"
-os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
-os.environ["TRANSFORMERS_NO_ADVISORY_WARNINGS"] = "1"
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
 import logging
+import os
 import sys
 import io
 import threading
@@ -104,6 +98,11 @@ class FluxModelLoader(BaseModelLoader):
 
             self._device = self._get_device(device)
             self._report_progress(f"Using device: {self._device}", 0.1)
+
+            os.environ["DIFFUSERS_DISABLE_PROGRESS_BARS"] = "1"
+            os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
+            os.environ["TRANSFORMERS_NO_ADVISORY_WARNINGS"] = "1"
+            os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
             from diffusers import FluxPipeline
 

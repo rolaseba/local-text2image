@@ -13,7 +13,7 @@ from src.utils.console import (
 )
 from src.utils.progress import progress
 from src.models import downloader
-from src.models.factory import create_model_loader
+from src.models.factory import create_model_loader, list_supported_models
 from src.models.validator import is_model_valid, validate_model_or_raise
 from src.config import load_config
 from src.output import save_image
@@ -231,8 +231,7 @@ def list_models():
     print_header("Model Integrity Report")
 
     models_dir = downloader.get_models_dir()
-    # We define the models the app’s current version supports
-    supported_models = ["flux-schnell", "flux-dev"]
+    supported_models = list_supported_models()
 
     # Define the path to model constraint configs
     constraints_dir = Path.cwd() / "config" / "models"
